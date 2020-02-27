@@ -1,0 +1,12 @@
+[package]
+name = "mdx"
+version = "0.0.1"
+authors = ["Christopher Biscardi <chris@christopherbiscardi.com>"]
+edition = "2018"
+description = "MDX implementation in Rust"
+homepage = "https://mdxjs.com/"
+readme = "./README.md"
+keywords = ["mdx","markdown"]
+license = "MIT"
+
+[dependencies]
