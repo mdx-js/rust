@@ -1,7 +1,7 @@
 [package]
 name = "mdx"
-version = "0.0.1"
-authors = ["Christopher Biscardi <chris@christopherbiscardi.com>"]
+version = "0.0.2"
+authors = ["John Otander <johnotander@gmail.com>", "Christopher Biscardi <chris@christopherbiscardi.com>"]
 edition = "2018"
 description = "MDX implementation in Rust"
 homepage = "https://mdxjs.com/"
