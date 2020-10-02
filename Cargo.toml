@@ -10,3 +10,4 @@ keywords = ["mdx","markdown"]
 license = "MIT"
 
 [dependencies]
+nom = "5.1.2"
