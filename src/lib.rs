@@ -21,7 +21,7 @@ pub fn parse<'a>(input: &'a str) -> Result<Mdx<'a>, std::io::Error> {
     let result = mdx(input);
     match result {
         Ok(("", m @ Mdx { .. })) => Ok(m),
-        Ok((i, m)) => panic!("leftover input {}", i),
+        Ok((i, _m)) => panic!("leftover input {}", i),
         _ => panic!("something went wrong. TODO error message"),
     }
 }

@@ -1,14 +1,4 @@
-use nom::{
-    bytes::complete::{tag, take_while_m_n},
-    character,
-    error::ErrorKind,
-    multi::fold_many_m_n,
-    named,
-    Err::Error,
-    IResult,
-};
-
-// use crate::mdx_error::MDXError;
+use nom::{bytes::complete::tag, multi::fold_many_m_n, IResult};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ATXHeading<'a> {
@@ -49,6 +39,7 @@ pub fn atx_heading(input: &str) -> IResult<&str, ATXHeading> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nom::{error::ErrorKind, Err::Error};
 
     #[test]
     fn parse_atx_heading_level_1() {

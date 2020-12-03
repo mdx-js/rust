@@ -64,7 +64,8 @@ mod tests {
     }
 }
 
-mod mdx_tests {
+#[cfg(test)]
+mod tests_2 {
     use super::*;
 
     #[test]
