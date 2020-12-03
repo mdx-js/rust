@@ -28,14 +28,14 @@ pub enum MdxAst<'a> {
 }
 
 pub fn mdx_elements(input: &str) -> IResult<&str, Vec<MdxAst>> {
-    nom::multi::fold_many0(mdx_ast, Vec::new(), |mut acc: Vec<_>, item| {
+    nom::multi::fold_many0(wrapped(mdx_ast), Vec::new(), |mut acc: Vec<_>, item| {
         acc.push(item);
         acc
     })(input)
 }
 
 fn mdx_ast(input: &str) -> IResult<&str, MdxAst> {
-    let (input, ast) = wrapped(nom::branch::alt((ast_atx_heading, ast_atx_heading)))(input)?;
+    let (input, ast) = nom::branch::alt((ast_atx_heading, ast_atx_heading))(input)?;
     Ok((input, ast))
 }
 

@@ -155,7 +155,7 @@ mod tests {
     fn parse_fail_hashtags() {
         assert_eq!(
             atx_heading("#boop"),
-            Err(Error(("boop", ErrorKind::MultiSpace)))
+            Err(Error(nom::error::Error { input: "boop", code: ErrorKind::MultiSpace }))
         );
     }
     #[test]
@@ -164,7 +164,8 @@ mod tests {
     fn parse_fail_7_hashes() {
         assert_eq!(
             atx_heading("####### boop"),
-            Err(Error(("# boop", ErrorKind::MultiSpace)))
+            Err(Error(nom::error::Error { input: "# boop", code: ErrorKind::MultiSpace }))
+
         );
     }
 }
