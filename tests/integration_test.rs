@@ -1,9 +1,11 @@
+use mdx::*;
+
 #[test]
 fn test_parse() {
     assert_eq!(
-        mdx::parse("# boop").unwrap(),
-        mdx::Mdx {
-            ast: vec![mdx::ast::MdxAst::ATXHeading(mdx::ast::ATXHeading {
+        parse("# boop").unwrap(),
+        Mdx {
+            ast: vec![ast::MdxAst::ATXHeading(ast::ATXHeading {
                 level: 1,
                 value: "boop"
             })]
@@ -16,7 +18,7 @@ fn test_parse() {
 // should panic beause we haven't implemented everything yet
 fn test_parse_panic() {
     assert_eq!(
-        mdx::parse(
+        parse(
             "# boop
 
 something else
@@ -26,11 +28,27 @@ const some = {}
 ```"
         )
         .unwrap(),
-        mdx::Mdx {
-            ast: vec![mdx::ast::MdxAst::ATXHeading(mdx::ast::ATXHeading {
+        Mdx {
+            ast: vec![ast::MdxAst::ATXHeading(ast::ATXHeading {
                 level: 1,
                 value: "boop"
             })]
         }
+    );
+}
+
+#[test]
+#[test]
+fn round_trip() {
+    assert_eq!(
+        parse(
+            "
+            
+# boop        
+"
+        )
+        .map(|ast| stringify(ast))
+        .unwrap(),
+        "# boop"
     );
 }

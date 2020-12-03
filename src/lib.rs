@@ -34,19 +34,3 @@ pub fn stringify(m: Mdx) -> String {
         .map(|ast| format!("{}", ast))
         .collect::<String>()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn round_trip() {
-        assert_eq!(
-            parse("
-            
-# boop        
-").map(|ast| stringify(ast)).unwrap(),
-            "# boop"
-        );
-    }
-}
