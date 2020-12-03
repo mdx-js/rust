@@ -13,9 +13,9 @@ where
     F: Fn(&'a str) -> IResult<&'a str, O, E>,
 {
     nom::sequence::delimited(
-        nom::character::complete::multispace0,
+        nom::character::complete::space0,
         inner,
-        nom::character::complete::multispace0,
+        nom::character::complete::space0,
     )
 }
 pub fn atx_heading(input: &str) -> IResult<&str, ATXHeading> {
@@ -26,12 +26,12 @@ pub fn atx_heading(input: &str) -> IResult<&str, ATXHeading> {
     )(input)?;
 
     // empty headings are a thing, so any parsing below this is optional
-    let (input, val) = inner_heading(nom::character::complete::alphanumeric0)(input)?;
+    let (input, val) = inner_heading(nom::character::complete::not_line_ending)(input)?;
     Ok((
         input,
         ATXHeading {
             level: num_hashes,
-            value: val,
+            value: val.trim(),
         },
     ))
 }
@@ -145,6 +145,22 @@ mod tests {
                 ATXHeading {
                     level: 1,
                     value: "boop"
+                }
+            ))
+        );
+    }
+
+    #[test]
+    // a heading may be preceeded or followed by
+    // any number of spaces
+    fn parse_atx_heading_symbols() {
+        assert_eq!(
+            atx_heading("# a bunch-of valid (symbols), like:+  "),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 1,
+                    value: "a bunch-of valid (symbols), like:+"
                 }
             ))
         );

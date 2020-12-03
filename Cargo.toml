@@ -12,6 +12,9 @@ license = "MIT"
 [dependencies]
 nom = "6.0.1"
 
-# [[bench]]
-# name = "mdx_benchmark"
-# harness = false
+[dev-dependencies]
+criterion = "0.3.3"
+
+[[bench]]
+name = "mdx_benchmark"
+harness = false
