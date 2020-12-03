@@ -25,3 +25,28 @@ pub fn parse<'a>(input: &'a str) -> Result<Mdx<'a>, std::io::Error> {
         _ => panic!("something went wrong. TODO error message"),
     }
 }
+
+// TODO: there's probably a trait we can do for this?
+// maybe Display somehow?
+pub fn stringify(m: Mdx) -> String {
+    m.ast
+        .iter()
+        .map(|ast| format!("{}", ast))
+        .collect::<String>()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn round_trip() {
+        assert_eq!(
+            parse("
+            
+# boop        
+").map(|ast| stringify(ast)).unwrap(),
+            "# boop"
+        );
+    }
+}

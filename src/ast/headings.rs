@@ -1,9 +1,15 @@
 use nom::{bytes::complete::tag, multi::fold_many_m_n, IResult};
-
+use std::fmt;
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ATXHeading<'a> {
     pub level: u8,
     pub value: &'a str,
+}
+impl<'a> fmt::Display for ATXHeading<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Use `self.number` to refer to each positional data point.
+        write!(f, "{} {}", "#".repeat(self.level.into()), self.value)
+    }
 }
 
 fn inner_heading<'a, F: 'a, O, E: nom::error::ParseError<&'a str>>(

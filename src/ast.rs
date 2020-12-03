@@ -1,4 +1,5 @@
 use nom::IResult;
+use std::fmt;
 
 pub mod headings;
 
@@ -25,6 +26,14 @@ where
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum MdxAst<'a> {
     ATXHeading(ATXHeading<'a>),
+}
+impl<'a> fmt::Display for MdxAst<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MdxAst::ATXHeading(atx @ ATXHeading { .. }) => write!(f, "{}", atx),
+        }
+        // Use `self.number` to refer to each positional data point.
+    }
 }
 
 pub fn mdx_elements(input: &str) -> IResult<&str, Vec<MdxAst>> {
