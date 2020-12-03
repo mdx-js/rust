@@ -1,0 +1,179 @@
+use nom::{
+    bytes::complete::{tag, take_while_m_n},
+    character,
+    error::ErrorKind,
+    multi::fold_many_m_n,
+    named,
+    Err::Error,
+    IResult,
+};
+
+// use crate::mdx_error::MDXError;
+
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub struct ATXHeading<'a> {
+    pub level: u8,
+    pub value: &'a str,
+}
+
+fn inner_heading<'a, F: 'a, O, E: nom::error::ParseError<&'a str>>(
+    inner: F,
+) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
+where
+    F: Fn(&'a str) -> IResult<&'a str, O, E>,
+{
+    nom::sequence::delimited(
+        nom::character::complete::multispace0,
+        inner,
+        nom::character::complete::multispace0,
+    )
+}
+pub fn atx_heading(input: &str) -> IResult<&str, ATXHeading> {
+    let (input, _) = fold_many_m_n(0, 3, tag(" "), 0, |acc: u8, _| acc + 1)(input)?;
+    let (input, num_hashes) = nom::sequence::terminated(
+        fold_many_m_n(0, 6, tag("#"), 0, |acc: u8, _| acc + 1),
+        nom::character::complete::multispace1,
+    )(input)?;
+
+    // empty headings are a thing, so any parsing below this is optional
+    let (input, val) = inner_heading(nom::character::complete::alphanumeric0)(input)?;
+    Ok((
+        input,
+        ATXHeading {
+            level: num_hashes,
+            value: val,
+        },
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_atx_heading_level_1() {
+        assert_eq!(
+            atx_heading("# boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 1,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    fn parse_atx_heading_level_2() {
+        assert_eq!(
+            atx_heading("## boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 2,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    fn parse_atx_heading_level_3() {
+        assert_eq!(
+            atx_heading("### boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 3,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    fn parse_atx_heading_level_4() {
+        assert_eq!(
+            atx_heading("#### boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 4,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    fn parse_atx_heading_level_5() {
+        assert_eq!(
+            atx_heading("##### boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 5,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    fn parse_atx_heading_level_6() {
+        assert_eq!(
+            atx_heading("###### boop"),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 6,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    // headings can be empty
+    fn parse_atx_heading_empty() {
+        assert_eq!(
+            atx_heading("######   "),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 6,
+                    value: ""
+                }
+            ))
+        );
+    }
+
+    #[test]
+    // a heading may be preceeded or followed by
+    // any number of spaces
+    fn parse_atx_heading_spaces() {
+        assert_eq!(
+            atx_heading("#     boop    "),
+            Ok((
+                "",
+                ATXHeading {
+                    level: 1,
+                    value: "boop"
+                }
+            ))
+        );
+    }
+    #[test]
+    // #hashtags are not valid headings, and
+    // instad parse as paragraphs.
+    fn parse_fail_hashtags() {
+        assert_eq!(
+            atx_heading("#boop"),
+            Err(Error(("boop", ErrorKind::MultiSpace)))
+        );
+    }
+    #[test]
+    // #hashtags are not valid headings, and
+    // instad parse as paragraphs.
+    fn parse_fail_7_hashes() {
+        assert_eq!(
+            atx_heading("####### boop"),
+            Err(Error(("# boop", ErrorKind::MultiSpace)))
+        );
+    }
+}
