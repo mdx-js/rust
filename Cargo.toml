@@ -1,12 +1,15 @@
 [package]
 name = "mdx"
 version = "0.0.2"
-authors = ["John Otander <johnotander@gmail.com>", "Christopher Biscardi <chris@christopherbiscardi.com>"]
+authors = [
+    "John Otander <johnotander@gmail.com>",
+    "Christopher Biscardi <chris@christopherbiscardi.com>",
+]
 edition = "2018"
 description = "MDX implementation in Rust"
 homepage = "https://mdxjs.com/"
 readme = "./README.md"
-keywords = ["mdx","markdown"]
+keywords = ["mdx", "markdown"]
 license = "MIT"
 
 [dependencies]
@@ -14,6 +17,8 @@ nom = "6.0.1"
 
 [dev-dependencies]
 criterion = "0.3.3"
+datatest = "0.6.3"
+serde = { version = "1.0.118", features = ["derive"] }
 
 [[bench]]
 name = "mdx_benchmark"
