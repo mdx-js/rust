@@ -1,15 +1,51 @@
 use mdx::*;
+use nom_supreme::error::{ErrorTree, BaseErrorKind};
 
 #[test]
 fn test_parse() {
     assert_eq!(
-        parse("# boop").unwrap(),
+        parse("# boop
+
+---
+
+## boop 2").unwrap(),
         Mdx {
             ast: vec![ast::MdxAst::ATXHeading(ast::ATXHeading {
                 level: 1,
                 value: "boop"
-            })]
+            }),
+            ast::MdxAst::ThematicBreak(ast::ThematicBreak {
+                char_count: 3,
+                break_char: '-'
+            }),
+            ast::MdxAst::ATXHeading(ast::ATXHeading {
+                level: 2,
+                value: "boop 2"
+            }),]
         }
+    );
+}
+
+#[test]
+fn test_parse_fail_graceful() {
+let res =    parse("# boop
+
+-d--
+
+## boop 2").unwrap_err();
+
+    assert_eq!(
+        match res {
+            ErrorTree::Base{kind, location} => {
+               if let BaseErrorKind::Kind(kind) = kind {
+                   kind
+               } else {
+                   panic!("idk1")
+               }
+            },
+            _ => panic!("idk2")
+        },
+        nom::error::ErrorKind::Eof
     );
 }
 

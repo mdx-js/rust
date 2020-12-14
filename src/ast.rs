@@ -1,57 +1,58 @@
-use nom::IResult;
+use nom::{IResult, sequence::delimited, multi::{ many1_count,many0_count}, character::complete::*};
 use std::fmt;
+use nom_supreme::{
+    error::ErrorTree, final_parser::{final_parser, Location}, multi::parse_separated_terminated,
+    parse_from_str, parser_ext::ParserExt, tag::complete::tag,
+};
 
 pub mod headings;
+pub mod thematic_breaks;
 
 pub use headings::{atx_heading, ATXHeading};
-
-// wrap everything in whitespace
-// TODO: do we need to handle "one newline" vs "two newlines" worth
-// of whitespace for paragraphs
-fn wrapped<'a, F: 'a, O, E: nom::error::ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
-where
-    F: Fn(&'a str) -> IResult<&'a str, O, E>,
-{
-    nom::sequence::delimited(
-        nom::character::complete::multispace0,
-        inner,
-        nom::character::complete::multispace0,
-    )
-}
+pub use thematic_breaks::{thematic_break, ThematicBreak};
 
 // TODO: maybe get rid of Copy/Clone here?
 // it's required by fold_many0
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum MdxAst<'a> {
     ATXHeading(ATXHeading<'a>),
+    ThematicBreak(ThematicBreak)
 }
 impl<'a> fmt::Display for MdxAst<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             MdxAst::ATXHeading(atx @ ATXHeading { .. }) => write!(f, "{}", atx),
+            MdxAst::ThematicBreak(brk @ ThematicBreak {..}) => write!(f, "{}", brk)
         }
         // Use `self.number` to refer to each positional data point.
     }
 }
 
-pub fn mdx_elements(input: &str) -> IResult<&str, Vec<MdxAst>> {
-    nom::multi::fold_many0(wrapped(mdx_ast), Vec::new(), |mut acc: Vec<_>, item| {
-        acc.push(item);
-        acc
-    })(input)
+pub fn mdx_elements(input: &str) -> Result<Vec<MdxAst>, ErrorTree<Location>>{
+    final_parser(mdx_elements_internal)(input)
+}
+fn mdx_elements_internal(input: &str) -> IResult<&str, Vec<MdxAst>, ErrorTree<&str>> {
+    let (input, _) = multispace0(input)?;
+    let (input, result) = nom::multi::separated_list1(many1_count(newline), mdx_ast)(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = nom::combinator::eof(input)?;
+    Ok((input, result))
 }
 
-fn mdx_ast(input: &str) -> IResult<&str, MdxAst> {
-    let (input, ast) = nom::branch::alt((ast_atx_heading, ast_atx_heading))(input)?;
+fn mdx_ast(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
+    let (input, ast) = nom::branch::alt((ast_atx_heading, ast_thematic_break))(input)?;
     Ok((input, ast))
 }
 
 /// We have to wrap the structs to fit in the MdxAst
-fn ast_atx_heading(input: &str) -> IResult<&str, MdxAst> {
+fn ast_atx_heading(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
     let (input, atx) = atx_heading(input)?;
     Ok((input, MdxAst::ATXHeading(atx)))
+}
+
+fn ast_thematic_break(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
+    let (input, thematic_break) = thematic_break(input)?;
+    Ok((input, MdxAst::ThematicBreak(thematic_break)))
 }
 
 #[cfg(test)]
@@ -61,14 +62,27 @@ mod tests {
     #[test]
     fn parse_heading() {
         assert_eq!(
-            mdx_ast("# boop"),
-            Ok((
+            mdx_ast("# boop").unwrap(),
+            (
                 "",
                 MdxAst::ATXHeading(ATXHeading {
                     level: 1,
                     value: "boop"
                 }),
-            ))
+            )
+        );
+    }
+    #[test]
+    fn parse_thematic_break() {
+        assert_eq!(
+            mdx_ast("---").unwrap(),
+            (
+                "",
+                MdxAst::ThematicBreak(ThematicBreak {
+                    char_count: 3,
+                    break_char: '-'
+                }),
+            )
         );
     }
 }
@@ -91,9 +105,8 @@ mod tests_2 {
 ## boop
 
 "
-            ),
-            Ok((
-                "",
+            ).unwrap(),
+
                 vec![
                     MdxAst::ATXHeading(ATXHeading {
                         level: 1,
@@ -104,7 +117,7 @@ mod tests_2 {
                         value: "boop"
                     }),
                 ]
-            ))
+
         );
     }
 }

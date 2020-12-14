@@ -23,6 +23,6 @@ impl fmt::Display for CommonmarkTestCase {
 
 #[cfg(feature = "commonmark")]
 #[datatest::data("tests/fixtures.json")]
-fn sample_test(case: CommonmarkTestCase) {
+fn commonmark_test(case: CommonmarkTestCase) {
   assert_eq!(case.html, case.markdown);
 }
