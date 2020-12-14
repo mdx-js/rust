@@ -1,9 +1,9 @@
-use nom::{IResult, sequence::delimited, multi::{ many1_count,many0_count}, character::complete::*};
-use std::fmt;
+use nom::{character::complete::*, multi::many1_count, IResult};
 use nom_supreme::{
-    error::ErrorTree, final_parser::{final_parser, Location}, multi::parse_separated_terminated,
-    parse_from_str, parser_ext::ParserExt, tag::complete::tag,
+    error::ErrorTree,
+    final_parser::{final_parser, Location},
 };
+use std::fmt;
 
 pub mod headings;
 pub mod thematic_breaks;
@@ -16,19 +16,19 @@ pub use thematic_breaks::{thematic_break, ThematicBreak};
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum MdxAst<'a> {
     ATXHeading(ATXHeading<'a>),
-    ThematicBreak(ThematicBreak)
+    ThematicBreak(ThematicBreak),
 }
 impl<'a> fmt::Display for MdxAst<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             MdxAst::ATXHeading(atx @ ATXHeading { .. }) => write!(f, "{}", atx),
-            MdxAst::ThematicBreak(brk @ ThematicBreak {..}) => write!(f, "{}", brk)
+            MdxAst::ThematicBreak(brk @ ThematicBreak { .. }) => write!(f, "{}", brk),
         }
         // Use `self.number` to refer to each positional data point.
     }
 }
 
-pub fn mdx_elements(input: &str) -> Result<Vec<MdxAst>, ErrorTree<Location>>{
+pub fn mdx_elements(input: &str) -> Result<Vec<MdxAst>, ErrorTree<Location>> {
     final_parser(mdx_elements_internal)(input)
 }
 fn mdx_elements_internal(input: &str) -> IResult<&str, Vec<MdxAst>, ErrorTree<&str>> {
@@ -105,19 +105,18 @@ mod tests_2 {
 ## boop
 
 "
-            ).unwrap(),
-
-                vec![
-                    MdxAst::ATXHeading(ATXHeading {
-                        level: 1,
-                        value: "boop"
-                    }),
-                    MdxAst::ATXHeading(ATXHeading {
-                        level: 2,
-                        value: "boop"
-                    }),
-                ]
-
+            )
+            .unwrap(),
+            vec![
+                MdxAst::ATXHeading(ATXHeading {
+                    level: 1,
+                    value: "boop"
+                }),
+                MdxAst::ATXHeading(ATXHeading {
+                    level: 2,
+                    value: "boop"
+                }),
+            ]
         );
     }
 }

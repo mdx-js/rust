@@ -1,18 +1,18 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(datatest::runner)]
 
+use mdx::*;
 use serde::Deserialize;
 use std::fmt;
-use mdx::*;
 
 #[derive(Deserialize)]
 struct CommonmarkTestCase {
-  markdown: String,
-  html: String,
-  example: usize,
-  start_line: usize,
-  end_line: usize,
-  section: String
+    markdown: String,
+    html: String,
+    example: usize,
+    start_line: usize,
+    end_line: usize,
+    section: String,
 }
 
 impl fmt::Display for CommonmarkTestCase {
@@ -24,5 +24,5 @@ impl fmt::Display for CommonmarkTestCase {
 #[cfg(feature = "commonmark")]
 #[datatest::data("tests/fixtures.json")]
 fn commonmark_test(case: CommonmarkTestCase) {
-  assert_eq!(case.html, case.markdown);
+    assert_eq!(case.html, case.markdown);
 }

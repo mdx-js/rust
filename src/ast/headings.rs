@@ -1,9 +1,6 @@
-use nom::{ multi::fold_many_m_n, IResult};
+use nom::{multi::fold_many_m_n, IResult};
+use nom_supreme::{error::ErrorTree, tag::complete::tag};
 use std::fmt;
-use nom_supreme::{
-    error::ErrorTree, final_parser::final_parser, multi::parse_separated_terminated,
-    parse_from_str, parser_ext::ParserExt, tag::complete::tag,
-};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ATXHeading<'a> {
