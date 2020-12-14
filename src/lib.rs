@@ -17,17 +17,6 @@ pub fn parse(
     mdx_elements(input).map(|ast| Mdx { ast })
 }
 
-// TODO: This function should not panic
-// pub fn parse<'a>(input: &'a str) -> Result<Mdx<'a>, std::io::Error> {
-//     let result = mdx(input);
-//     match result {
-//         Ok(("", m @ Mdx { .. })) => Ok(m),
-//         Ok((i, m)) => panic!("leftover input {}
-// parsed: {:?}", i, m),
-//         e => panic!("something went wrong. TODO error message {:?}", e),
-//     }
-// }
-
 // TODO: there's probably a trait we can do for this?
 // maybe Display somehow?
 pub fn stringify(m: Mdx) -> String {
