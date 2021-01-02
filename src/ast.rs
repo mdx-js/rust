@@ -40,8 +40,7 @@ fn mdx_elements_internal(input: &str) -> IResult<&str, Vec<MdxAst>, ErrorTree<&s
 }
 
 fn mdx_ast(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
-    let (input, ast) = nom::branch::alt((ast_atx_heading, ast_thematic_break))(input)?;
-    Ok((input, ast))
+    nom::branch::alt((ast_atx_heading, ast_thematic_break))(input)
 }
 
 /// We have to wrap the structs to fit in the MdxAst
