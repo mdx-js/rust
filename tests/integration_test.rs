@@ -1,4 +1,4 @@
-use mdx::*;
+use mdx::{ast::MdxAst, *};
 use nom_supreme::error::{BaseErrorKind, ErrorTree};
 
 #[test]
@@ -32,28 +32,22 @@ fn test_parse() {
 }
 
 #[test]
-fn test_parse_fail_graceful() {
-    let res = parse(
-        "# boop
-
--d--
-
-## boop 2",
-    )
-    .unwrap_err();
-
+fn test_parse_fail_thematic_break_into_paragraph() {
     assert_eq!(
-        match res {
-            ErrorTree::Base { kind, location } => {
-                if let BaseErrorKind::Kind(kind) = kind {
-                    kind
-                } else {
-                    panic!("idk1")
-                }
-            }
-            _ => panic!("idk2"),
-        },
-        nom::error::ErrorKind::Eof
+        parse("# boop\n\n-d--\n\n## boop 2\n\n",).unwrap(),
+        Mdx {
+            ast: vec![
+                MdxAst::ATXHeading(ast::ATXHeading {
+                    level: 1,
+                    value: "boop"
+                }),
+                MdxAst::Paragraph(ast::Paragraph { words: "-d--" }),
+                MdxAst::ATXHeading(ast::ATXHeading {
+                    level: 2,
+                    value: "boop 2"
+                })
+            ]
+        }
     );
 }
 

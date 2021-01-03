@@ -6,9 +6,11 @@ use nom_supreme::{
 use std::fmt;
 
 pub mod headings;
+pub mod paragraphs;
 pub mod thematic_breaks;
 
 pub use headings::{atx_heading, ATXHeading};
+pub use paragraphs::{paragraph, Paragraph};
 pub use thematic_breaks::{thematic_break, ThematicBreak};
 
 // TODO: maybe get rid of Copy/Clone here?
@@ -17,12 +19,14 @@ pub use thematic_breaks::{thematic_break, ThematicBreak};
 pub enum MdxAst<'a> {
     ATXHeading(ATXHeading<'a>),
     ThematicBreak(ThematicBreak),
+    Paragraph(Paragraph<'a>),
 }
 impl<'a> fmt::Display for MdxAst<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            MdxAst::ATXHeading(atx @ ATXHeading { .. }) => write!(f, "{}", atx),
-            MdxAst::ThematicBreak(brk @ ThematicBreak { .. }) => write!(f, "{}", brk),
+            MdxAst::ATXHeading(atx) => write!(f, "{}", atx),
+            MdxAst::ThematicBreak(brk) => write!(f, "{}", brk),
+            MdxAst::Paragraph(para) => write!(f, "{}", para),
         }
         // Use `self.number` to refer to each positional data point.
     }
@@ -40,7 +44,7 @@ fn mdx_elements_internal(input: &str) -> IResult<&str, Vec<MdxAst>, ErrorTree<&s
 }
 
 fn mdx_ast(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
-    nom::branch::alt((ast_atx_heading, ast_thematic_break))(input)
+    nom::branch::alt((ast_atx_heading, ast_thematic_break, ast_paragraph))(input)
 }
 
 /// We have to wrap the structs to fit in the MdxAst
@@ -52,6 +56,11 @@ fn ast_atx_heading(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
 fn ast_thematic_break(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
     let (input, thematic_break) = thematic_break(input)?;
     Ok((input, MdxAst::ThematicBreak(thematic_break)))
+}
+
+fn ast_paragraph(input: &str) -> IResult<&str, MdxAst, ErrorTree<&str>> {
+    let (input, paragraph) = paragraph(input)?;
+    Ok((input, MdxAst::Paragraph(paragraph)))
 }
 
 #[cfg(test)]
