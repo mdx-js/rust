@@ -1,12 +1,5 @@
-use nom::{
-    branch::alt,
-    bytes::complete::*,
-    character::complete::{anychar, space0},
-    combinator::value,
-    multi::fold_many_m_n,
-    IResult, Parser,
-};
-use nom_supreme::{error::ErrorTree, parser_ext::ParserExt, tag::complete::tag};
+use nom::{bytes::complete::*, IResult};
+use nom_supreme::error::ErrorTree;
 use std::fmt;
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Paragraph<'a> {
