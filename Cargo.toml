@@ -1,6 +1,6 @@
 [package]
 name = "mdx"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
     "John Otander <johnotander@gmail.com>",
     "Christopher Biscardi <chris@christopherbiscardi.com>",
