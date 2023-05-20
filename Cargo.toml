@@ -8,6 +8,7 @@ authors = [
 edition = "2018"
 description = "MDX implementation in Rust"
 homepage = "https://mdxjs.com/"
+repository = "https://github.com/mdx-js/rust"
 readme = "./README.md"
 keywords = ["mdx", "markdown"]
 license = "MIT"
